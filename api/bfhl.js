@@ -1,23 +1,27 @@
 // api/bfhl.js
-module.exports = (req, res) => {
-  const FULL_NAME = "john_doe";  
-  const DOB = "17091999";       
-  const EMAIL = "john@xyz.com";  
-  const ROLL_NUMBER = "ABCD123"; 
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-  function alternateCapsReverse(str) {
-      let reversed = str.split('').reverse();
-      return reversed.map((ch, i) => i % 2 === 0 ? ch.toUpperCase() : ch.toLowerCase()).join('');
-  }
+app.use(express.json());
 
-  if (req.method === "GET") {
-    return res.status(200).json({ operation_code: 1 });
-  }
+const FULL_NAME = "john_doe";  
+const DOB = "17091999";       
+const EMAIL = "john@xyz.com";  
+const ROLL_NUMBER = "ABCD123"; 
 
-  if (req.method === "POST") {
+function alternateCapsReverse(str) {
+    let reversed = str.split('').reverse();
+    return reversed.map((ch, i) => i % 2 === 0 ? ch.toUpperCase() : ch.toLowerCase()).join('');
+}
+
+app.get('/bfhl', (req, res) => {
+    res.status(200).json({message: 'GET request received', operation_code: 1 });
+});
+
+app.post('/bfhl', (req, res) => {
     try {
       const data = req.body.data || [];
-
       let evenNumbers = [];
       let oddNumbers = [];
       let alphabets = [];
@@ -26,15 +30,15 @@ module.exports = (req, res) => {
       let allAlphabets = '';
 
       data.forEach(item => {
-          if (/^\d+$/.test(item)) { // Check if it's a number
+          if (/^\d+$/.test(item)) {
               let num = parseInt(item, 10);
               sum += num;
               if (num % 2 === 0) evenNumbers.push(item);
               else oddNumbers.push(item);
-          } else if (/^[a-zA-Z]+$/.test(item)) { // Alphabets
+          } else if (/^[a-zA-Z]+$/.test(item)) {
               alphabets.push(item.toUpperCase());
               allAlphabets += item;
-          } else { // Special characters
+          } else {
               specialChars.push(item);
           }
       });
@@ -57,8 +61,8 @@ module.exports = (req, res) => {
     } catch (error) {
       return res.status(500).json({ is_success: false, message: error.message });
     }
-  }
+});
 
-  // Method not allowed
-  res.status(405).json({ error: "Method Not Allowed" });
-};
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
